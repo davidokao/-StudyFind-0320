@@ -1,2 +1,2 @@
-# -StudyFind-0320
+# StudyFind-0320
 Junior Design project
