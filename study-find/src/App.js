@@ -12,7 +12,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 function App() {
-    let [isOpen, setIsOpen] = useState(false);
+    let [isOpen, setIsOpen, researcherList, setResearcherList] = useState(false);
 
     const openModal = () => {
         setIsOpen(true);
@@ -24,6 +24,22 @@ function App() {
 
     const learnMore = (url) => {
         window.open(url, "_blank");
+    };
+
+    const fetchData = () => {
+        const requestOptions = {
+            method: 'GET',
+            headers: {'id': 'Hi'}
+        }
+        fetch("http://0.0.0.0:8080/list", requestOptions)
+        .then(res => res.json())
+        .then((result) => {
+            // setResearcherList({researcher: result})
+            console.log(result)
+        })
+        .catch((error) => {
+            console.log("Error", error)
+        });
     };
 
     return (
@@ -402,6 +418,13 @@ function App() {
             >
                 Details
             </button>
+            <button
+                onClick={() => {
+                    fetchData()
+                }}>
+                Fetch Data
+            </button>
+            {researcherList? researcherList : "None"}
         </div>
     );
 }
