@@ -17,23 +17,24 @@ todo_ref = db.collection('Researchers')
 
 @app.route('/add', methods=['POST'])
 def create():
-    print('hi')
-    print(request)
-    print(request.json)
-    id = request.json['id']
-    print(id)
-    print(generate_researcher(id))
     """
         create() : Add document to Firestore collection with request body
         Ensure you pass a custom ID as part of json body in post request
         e.g. json={'id': '1', 'title': 'Write a blog post'}
     """
-    
     try:
         id = request.json['id']
-        
-        # todo_ref.document(id).set(request.json)
-        return jsonify(generate_researcher(id)), 200
+        doc = todo_ref.document(id).get().to_dict()
+        if doc is None:
+            print('Scraped')
+            profile = generate_researcher(id)
+            print(profile)
+            todo_ref.document(id).set(profile)
+            return jsonify(profile), 200
+        else:
+            print('Didn\'t scrape')
+            return jsonify(doc), 200
+
     except Exception as e:
         return f"An Error Occured: {e}"
 
@@ -44,10 +45,8 @@ def read():
         read() : Fetches documents from Firestore collection as JSON
         todo : Return document that matches query ID
         all_todos : Return all documents
-
     """
     try:
-        # Check if ID was passed to URL query
         todo_id = request.args.get('id')    
         if todo_id:
             todo = todo_ref.document(todo_id).get()
@@ -78,10 +77,8 @@ def update():
 def delete():
     """
         delete() : Delete a document from Firestore collection
-
     """
     try:
-        # Check for ID in URL query
         todo_id = request.args.get('id')
         todo_ref.document(todo_id).delete()
         return jsonify({"success": True}), 200
