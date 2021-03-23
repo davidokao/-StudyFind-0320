@@ -27,7 +27,7 @@ def getResearcherURL(name, university=''):
     return 'no valid researcher found'
 
 def getResearcherProfile(url):
-    driver = webdriver.Chrome('//Users/shardulkothapalli/Desktop/SCHOOL/6.spring2021/cs3312/StudyFind-0320/chromedriver')
+    driver = webdriver.Chrome('/chromedriver')
     url += '&view_op=list_works&sortby=pubdate'
     driver.get(url)
     soup = BeautifulSoup(driver.page_source,'html')
