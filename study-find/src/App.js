@@ -50,6 +50,7 @@ function App() {
         axios
             .post("http://localhost:8080/add", myParams)
             .then(function (response) {
+                console.log(response)
                 console.log(response.data);
                 setResearcherList((prevState) => ({
                     name: response.data.name,
@@ -113,7 +114,7 @@ function App() {
             ),
             tabEventKey: "locations",
         },
-        ...(researcherList.name === ""
+        (researcherList.name === ""
             ? []
             : {
                   title: "About the Researcher",
