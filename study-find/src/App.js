@@ -52,12 +52,14 @@ function App() {
             .then(function (response) {
                 console.log(response)
                 console.log(response.data);
-                setResearcherList((prevState) => ({
-                    name: response.data.name,
-                    organization: response.data.organization,
-                    topics: response.data.topics,
-                    studies: response.data.studies,
-                }));
+                if (response.data.studies != "None") {
+                    setResearcherList((prevState) => ({
+                        name: response.data.name,
+                        organization: response.data.organization,
+                        topics: response.data.topics,
+                        studies: response.data.studies,
+                    }));
+                }
             })
             .catch(function (error) {
                 console.log(error);

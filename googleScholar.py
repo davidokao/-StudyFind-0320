@@ -2,6 +2,7 @@ from googlesearch import search
 import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 import time 
 
 def getResearcherURL(name, university=''):
@@ -23,11 +24,15 @@ def getResearcherURL(name, university=''):
     for i in summ:
         if university in i.text and name in i.text:
             href = i.find_all('a', href=True)[0]['href']
-            return ("scholar.google.com"+href)
+            return ("https://scholar.google.com"+href)
     return 'no valid researcher found'
 
 def getResearcherProfile(url):
-    driver = webdriver.Chrome('/chromedriver')
+    options = Options()
+    # options.add_argument('--headless')
+    # options.add_argument('--disable-gpu')
+    # driver = webdriver.Chrome('./chromedriver', chrome_options=options)
+    driver = webdriver.Chrome('./chromedriver')
     url += '&view_op=list_works&sortby=pubdate'
     driver.get(url)
     soup = BeautifulSoup(driver.page_source,'html')
@@ -94,4 +99,5 @@ def getResearcherProfile(url):
     driver.quit()
     profile = {'name': prof_info[0], 'organization': prof_info[1], 'topics': prof_info[2], 'profile pic': prof_pic,
                'studies': stoodies}
+    return profile
 

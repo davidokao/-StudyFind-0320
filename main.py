@@ -4,6 +4,7 @@ import sys
 from flask import Flask, request, jsonify
 from firebase_admin import credentials, firestore, initialize_app
 from research import generate_researcher, generate_study_and_tags
+from googleScholar import getResearcherURL, getResearcherProfile
 
 # Initialize Flask App
 app = Flask(__name__)
@@ -28,7 +29,16 @@ def create():
         if doc is None:
             print('Scraped')
             profile = generate_researcher(id)
+            # profile['topics'] == "None"
+            # profile['studies'] == "None"
             print(profile)
+            if profile['studies'] == "None":
+                link = getResearcherURL(id)
+                if link != 'no valid researcher found':
+                    profile = getResearcherProfile(link)
+                else:
+                    return jsonify(profile), 200
+            # only add to firebase if valid response
             todo_ref.document(id).set(profile)
             return jsonify(profile), 200
         else:
