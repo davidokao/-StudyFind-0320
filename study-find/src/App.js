@@ -11,6 +11,7 @@ import {
     faBuilding,
     faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import Placeholder from "./assets/Placeholder.png";
 
 function App() {
     let [isOpen, setIsOpen] = useState(false);
@@ -22,6 +23,7 @@ function App() {
         studies: [],
     });
     let [isCompact, setIsCompact] = useState(false);
+    // const placeholderImage = require("./assets/Placeholder.png");
 
     // modal events
     const openModal = () => {
@@ -81,6 +83,10 @@ function App() {
         handleWindowSizeChange();
     }, []);
 
+    const submitSearch = (topic) => {
+        return true;
+    };
+
     // modal content
     let modalContent = [
         {
@@ -113,14 +119,15 @@ function App() {
             ),
             tabEventKey: "locations",
         },
-        ...(researcherList.name === ""
+        researcherList.name === ""
             ? []
             : {
                   title: "About the Researcher",
                   content: (
                       <div class="tab-cont">
+                          <img src={Placeholder} />
+                          <h3>About the Researcher</h3>
                           <div class="researcher-contact">
-                              <h3>About the Researcher</h3>
                               <p>
                                   <FontAwesomeIcon icon={faUser} />{" "}
                                   {researcherList.name}
@@ -148,13 +155,20 @@ function App() {
                           <div class="content">
                               <p>Common Topics Studied by This Researcher:</p>
                               {researcherList.topics.map((topic, ind) => (
-                                  <div>{topic}</div>
+                                  <Button
+                                      type="button"
+                                      className="topic"
+                                      variant="secondary"
+                                      onClick={submitSearch(topic)}
+                                  >
+                                      {topic}
+                                  </Button>
                               ))}
                           </div>
                       </div>
                   ),
                   tabEventKey: "researcher",
-              }),
+              },
         {
             title: "Learn More",
             content: (
