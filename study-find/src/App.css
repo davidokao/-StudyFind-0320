@@ -69,14 +69,51 @@
 
 .tab-cont h3 {
     font-size: 22px;
+    color: #1e2022;
+}
+
+.tab-cont h4 {
+    font-size: 18px;
+    color: #1e2022;
+    padding: 1% 0%;
 }
 
 .tab-cont img {
-    float: right;
     width: 250px;
 }
 
+.float-right {
+    float: right;
+    margin-left: 2%;
+    margin-bottom: 2%;
+}
+
+.center-img {
+    margin: 2% auto;
+    align: center;
+}
+
+.tab-section {
+    padding: 2% 0%;
+}
+
+.tab-section a {
+    color: #1e2022;
+}
+
 .topic {
-    padding: 0.5% !important;
+    padding: 1% !important;
     margin: 0.4%;
+}
+
+.blueBackground {
+    background-color: #387dff !important;
+}
+
+.bottom-padding {
+    padding-bottom: 2%;
+}
+
+.insert-indent {
+    padding-left: 2%;
 }

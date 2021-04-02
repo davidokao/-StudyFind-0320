@@ -1,7 +1,8 @@
 import logo from "./logo.svg";
 import "./App.css";
 import axios from "axios";
-import { Accordion, Button, Card, Tab, Tabs } from "react-bootstrap";
+// import { Accordion, Card, Tab, Tabs, Button } from "react-bootstrap";
+import { Accordion, Card, Button } from "react-bootstrap";
 import Modal from "react-bootstrap/Modal";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -12,6 +13,18 @@ import {
     faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import Placeholder from "./assets/Placeholder.png";
+import {
+    ChakraProvider,
+    ThemeProvider,
+    theme,
+    UnorderedList,
+    ListItem,
+    Tabs,
+    TabList,
+    TabPanel,
+    Tab,
+    TabPanels,
+} from "@chakra-ui/react";
 
 function App() {
     let [isOpen, setIsOpen] = useState(false);
@@ -112,9 +125,9 @@ function App() {
             content: (
                 <div class="tab-cont">
                     <h3>All Locations</h3>
-                    <ul>
-                        <li></li>
-                    </ul>
+                    <UnorderedList>
+                        <ListItem></ListItem>
+                    </UnorderedList>
                 </div>
             ),
             tabEventKey: "locations",
@@ -125,9 +138,11 @@ function App() {
                   title: "About the Researcher",
                   content: (
                       <div class="tab-cont">
-                          <img src={Placeholder} />
+                          {!isCompact && (
+                              <img src={Placeholder} className="float-right" />
+                          )}
                           <h3>About the Researcher</h3>
-                          <div class="researcher-contact">
+                          <div class="researcher-contact tab-section">
                               <p>
                                   <FontAwesomeIcon icon={faUser} />{" "}
                                   {researcherList.name}
@@ -136,24 +151,34 @@ function App() {
                                   {researcherList.organization}
                               </p>
                           </div>
-                          <div class="content">
-                              <p>Recent Studies From This Researcher:</p>
+                          {isCompact && (
+                              <img src={Placeholder} className="center-img" />
+                          )}
+                          <div class="content tab-section">
+                              <h4>Recent Studies From This Researcher:</h4>
                               {researcherList.studies.map((study, ind) => (
-                                  <ul>
-                                      <li>
-                                          Title: <u>{study.title}</u>{" "}
-                                      </li>
-                                      <li>
-                                          Publication Date:{" "}
+                                  <div className="bottom-padding">
+                                      <u>
+                                          <a
+                                              href={study["pdf link"]}
+                                              target="_blank"
+                                          >
+                                              {study.title}
+                                          </a>
+                                      </u>
+                                      <p className="insert-indent">
+                                          <strong>Publication Date:</strong>{" "}
                                           {study["publication date"]}
-                                      </li>
-                                      <li>PDF link: {study["pdf link"]}</li>
-                                      <li>Description: {study.description}</li>
-                                  </ul>
+                                      </p>
+                                      <p className="insert-indent">
+                                          <strong>Description:</strong>{" "}
+                                          {study.description}
+                                      </p>
+                                  </div>
                               ))}
                           </div>
-                          <div class="content">
-                              <p>Common Topics Studied by This Researcher:</p>
+                          <div class="content tab-section">
+                              <h4>Common Topics Studied by This Researcher:</h4>
                               {researcherList.topics.map((topic, ind) => (
                                   <Button
                                       type="button"
@@ -184,72 +209,120 @@ function App() {
     ];
 
     return (
-        <div className="App">
-            <Modal
-                show={isOpen}
-                onHide={closeModal}
-                animation={true}
-                backdropClassName={"modal-backdrop"}
-                centered={true}
-                size={"lg"}
-                dialogClassName={"modal-style"}
-            >
-                <Modal.Header closeButton></Modal.Header>
-                <Modal.Body>
-                    {!isCompact && (
-                        <Tabs defaultActiveKey="description" className="tabs">
-                            {modalContent.map((section, i) => (
-                                <Tab
-                                    eventKey={section.tabEventKey}
-                                    title={section.title}
-                                    tabClassName="tab"
-                                >
-                                    {section.content}
-                                </Tab>
-                            ))}
-                        </Tabs>
-                    )}
-                    {isCompact && (
-                        <Accordion>
-                            {modalContent.map((section, i) => (
-                                <Card>
-                                    <Card.Header>
-                                        <Accordion.Toggle
-                                            as={Button}
-                                            variant="link"
-                                            eventKey={i + 1}
-                                        >
-                                            {section.title}
-                                        </Accordion.Toggle>
-                                    </Card.Header>
-                                    <Accordion.Collapse eventKey={i + 1}>
-                                        <Card.Body>{section.content}</Card.Body>
-                                    </Accordion.Collapse>
-                                </Card>
-                            ))}
-                        </Accordion>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="primary" onClick={closeModal}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-            <form onSubmit={handleSubmit}>
-                <label>Enter name:</label>
-                <input
-                    type="text"
-                    value={searchResearcherName}
-                    onChange={(e) => setSearchResearcherName(e.target.value)}
-                />
-                <input
-                    type="submit"
-                    class="button"
-                    styyle={{ height: "100%" }}
-                />
-            </form>
-        </div>
+        <ChakraProvider>
+            <div className="App">
+                <Modal
+                    show={isOpen}
+                    onHide={closeModal}
+                    animation={true}
+                    backdropClassName={"modal-backdrop"}
+                    centered={true}
+                    size={"lg"}
+                    dialogClassName={"modal-style"}
+                >
+                    <Modal.Header closeButton></Modal.Header>
+                    <Modal.Body>
+                        {!isCompact && (
+                            <Tabs variant="enclosed" colorScheme="green">
+                                <TabList>
+                                    <Tab
+                                        _selected={{
+                                            color: "white",
+                                            bg: "#387DFF",
+                                        }}
+                                    >
+                                        Full Description
+                                    </Tab>
+                                    <Tab
+                                        _selected={{
+                                            color: "white",
+                                            bg: "#387DFF",
+                                        }}
+                                    >
+                                        Additional Criteria
+                                    </Tab>
+                                    <Tab
+                                        _selected={{
+                                            color: "white",
+                                            bg: "#387DFF",
+                                        }}
+                                    >
+                                        All Locations
+                                    </Tab>
+                                    <Tab
+                                        _selected={{
+                                            color: "white",
+                                            bg: "#387DFF",
+                                        }}
+                                    >
+                                        About the Researcher
+                                    </Tab>
+                                    <Tab
+                                        _selected={{
+                                            color: "white",
+                                            bg: "#387DFF",
+                                        }}
+                                    >
+                                        Learn More
+                                    </Tab>
+                                </TabList>
+                                <TabPanels>
+                                    {modalContent.map((section, i) => (
+                                        <TabPanel>{section.content}</TabPanel>
+                                    ))}
+                                </TabPanels>
+                            </Tabs>
+                        )}
+                        {isCompact && (
+                            <Accordion>
+                                {modalContent.map((section, i) => (
+                                    <Card>
+                                        <Card.Header>
+                                            <Accordion.Toggle
+                                                as={Button}
+                                                variant="link"
+                                                eventKey={i + 1}
+                                            >
+                                                {section.title}
+                                            </Accordion.Toggle>
+                                        </Card.Header>
+                                        <Accordion.Collapse eventKey={i + 1}>
+                                            <Card.Body>
+                                                {section.content}
+                                            </Card.Body>
+                                        </Accordion.Collapse>
+                                    </Card>
+                                ))}
+                            </Accordion>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button
+                            variant="primary"
+                            onClick={closeModal}
+                            className="blueBackground"
+                        >
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+                <form onSubmit={handleSubmit}>
+                    <label>Enter name:</label>
+                    <input
+                        type="text"
+                        value={searchResearcherName}
+                        onChange={(e) =>
+                            setSearchResearcherName(e.target.value)
+                        }
+                    />
+                    <input
+                        type="submit"
+                        class="button"
+                        styyle={{ height: "100%" }}
+                    />
+                </form>
+            </div>
+        </ChakraProvider>
     );
 }
 
