@@ -15,11 +15,15 @@ import {
 function App() {
     let [isOpen, setIsOpen] = useState(false);
     let [searchResearcherName, setSearchResearcherName] = useState(String);
+    let [searchResearcherEmail, setSearchResearcherEmail] = useState(String);
+    let [searchResearcherOrganization, setSearchResearcherOrganization] = useState(String);
     let [researcherList, setResearcherList] = useState({
         name: "",
         organization: "",
         topics: [],
         studies: [],
+        email: "",
+        pmid: ""
     });
     let [isCompact, setIsCompact] = useState(false);
 
@@ -44,12 +48,15 @@ function App() {
     };
     const fetchData = () => {
         var myParams = {
-            id: searchResearcherName,
+            name: searchResearcherName,
+            email: searchResearcherEmail,
+            organization: searchResearcherOrganization,
         };
 
         axios
             .post("http://localhost:8080/add", myParams)
             .then(function (response) {
+                console.log("here")
                 console.log(response)
                 console.log(response.data);
                 if (response.data.studies != "None") {
@@ -58,6 +65,8 @@ function App() {
                         organization: response.data.organization,
                         topics: response.data.topics,
                         studies: response.data.studies,
+                        email: response.data.email,
+                        pmid: response.data.pmid
                     }));
                 }
             })
@@ -226,11 +235,23 @@ function App() {
                 </Modal.Footer>
             </Modal>
             <form onSubmit={handleSubmit}>
-                <label>Enter name:</label>
+                <label>Enter Name:</label>
                 <input
                     type="text"
                     value={searchResearcherName}
                     onChange={(e) => setSearchResearcherName(e.target.value)}
+                />
+                <label>Enter Email:</label>
+                <input
+                    type="text"
+                    value={searchResearcherEmail}
+                    onChange={(e) => setSearchResearcherEmail(e.target.value)}
+                />
+                <label>Enter Organization:</label>
+                <input
+                    type="text"
+                    value={searchResearcherOrganization}
+                    onChange={(e) => setSearchResearcherOrganization(e.target.value)}
                 />
                 <input
                     type="submit"

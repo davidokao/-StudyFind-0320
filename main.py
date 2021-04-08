@@ -3,7 +3,7 @@ import os
 import sys
 from flask import Flask, request, jsonify
 from firebase_admin import credentials, firestore, initialize_app
-from research import generate_researcher, generate_study_and_tags
+from research import generate_researcher, generate_article_and_tags
 from googleScholar import getResearcherURL, getResearcherProfile
 
 # Initialize Flask App
@@ -23,23 +23,34 @@ def create():
         Ensure you pass a custom ID as part of json body in post request
         e.g. json={'id': '1', 'title': 'Write a blog post'}
     """
+    print('hi')
     try:
-        id = request.json['id']
-        doc = todo_ref.document(id).get().to_dict()
+        researcher_name = request.json['name']
+        researcher_email = request.json['email'] if request.json['email'] != "" else None
+        researcher_organization = request.json['organization'] if request.json['organization'] != "" else None
+        # attempt to get researcher profile by name
+        doc = todo_ref.document(researcher_name).get().to_dict()
         if doc is None:
             print('Scraped')
-            profile = generate_researcher(id)
+            print(researcher_name, researcher_email, researcher_organization)
+            profile = generate_researcher(name=researcher_name, email=researcher_email, org=researcher_organization)
             # profile['topics'] == "None"
             # profile['studies'] == "None"
             print(profile)
+            print(profile['studies'])
+            print(profile['studies'] == "None")
             if profile['studies'] == "None":
-                link = getResearcherURL(id)
+                print('scholar')
+                link = getResearcherURL(researcher_name)
+                print(link)
                 if link != 'no valid researcher found':
                     profile = getResearcherProfile(link)
                 else:
                     return jsonify(profile), 200
             # only add to firebase if valid response
-            todo_ref.document(id).set(profile)
+            print("before firebase")
+            todo_ref.document(researcher_name).set(profile)
+            print("updated firebase")
             return jsonify(profile), 200
         else:
             print('Didn\'t scrape')
