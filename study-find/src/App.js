@@ -36,27 +36,33 @@ function App() {
         studies: [],
     });
     let [isCompact, setIsCompact] = useState(false);
-    // const placeholderImage = require("./assets/Placeholder.png");
+    let [hasEmail, setHasEmail] = useState(false);
+    let [hasOrganization, setHasOrganization] = useState(false);
 
-    // modal events
+    // open the modal
     const openModal = () => {
         setIsOpen(true);
     };
+
+    //close the modal
     const closeModal = () => {
         setIsOpen(false);
+        setResearcherList(() => ({
+            name: "",
+            organization: "",
+            topics: [],
+            studies: [],
+        }));
     };
 
-    // // open link in new tab
-    // const learnMore = (url) => {
-    //     window.open(url, "_blank");
-    // };
-
-    // web scraping methods
+    // handling the sumbit button that takes in a researcher name
     const handleSubmit = (event) => {
         event.preventDefault();
         fetchData();
         openModal();
     };
+
+    // fetch the data based on the input researcher name
     const fetchData = () => {
         var myParams = {
             id: searchResearcherName,
@@ -72,13 +78,19 @@ function App() {
                     topics: response.data.topics,
                     studies: response.data.studies,
                 }));
+                if (response.data.organization !== "None") {
+                    setHasOrganization(true);
+                }
+                if (response.data.email !== "None") {
+                    setHasEmail(false);
+                }
             })
             .catch(function (error) {
                 console.log(error);
             });
     };
 
-    //window size handling
+    // identify if window is compact
     const handleWindowSizeChange = () => {
         if (window.innerWidth < 992) {
             setIsCompact(true);
@@ -86,16 +98,21 @@ function App() {
             setIsCompact(false);
         }
     };
+
+    // check for window size change
     useEffect(() => {
         window.addEventListener("resize", handleWindowSizeChange);
         return () => {
             window.removeEventListener("resize", handleWindowSizeChange);
         };
     });
+
+    // update if the window is compact
     useEffect(() => {
         handleWindowSizeChange();
     }, []);
 
+    //submits a search for a topic, to be implemented by StudyFind
     const submitSearch = (topic) => {
         return true;
     };
@@ -132,7 +149,7 @@ function App() {
             ),
             tabEventKey: "locations",
         },
-        researcherList.name === ""
+        researcherList.name === "" || researcherList.studies === "None"
             ? []
             : {
                   title: "About the Researcher",
@@ -146,9 +163,24 @@ function App() {
                               <p>
                                   <FontAwesomeIcon icon={faUser} />{" "}
                                   {researcherList.name}
-                                  <br />
-                                  <FontAwesomeIcon icon={faBuilding} />{" "}
-                                  {researcherList.organization}
+                                  {hasEmail && (
+                                      <span>
+                                          <br />
+                                          <FontAwesomeIcon
+                                              icon={faEnvelope}
+                                          />{" "}
+                                          {researcherList.email}
+                                      </span>
+                                  )}
+                                  {hasOrganization && (
+                                      <span>
+                                          <br />
+                                          <FontAwesomeIcon
+                                              icon={faBuilding}
+                                          />{" "}
+                                          {researcherList.organization}
+                                      </span>
+                                  )}
                               </p>
                           </div>
                           {isCompact && (
@@ -179,16 +211,23 @@ function App() {
                           </div>
                           <div class="content tab-section">
                               <h4>Common Topics Studied by This Researcher:</h4>
-                              {researcherList.topics.map((topic, ind) => (
-                                  <Button
-                                      type="button"
-                                      className="topic"
-                                      variant="secondary"
-                                      onClick={submitSearch(topic)}
-                                  >
-                                      {topic}
-                                  </Button>
-                              ))}
+                              {researcherList.topics !== "None" &&
+                                  researcherList.topics.map((topic, ind) => (
+                                      <Button
+                                          type="button"
+                                          className="topic"
+                                          variant="secondary"
+                                          onClick={submitSearch(topic)}
+                                      >
+                                          {topic}
+                                      </Button>
+                                  ))}
+                              {researcherList.topics === "None" && (
+                                  <p>
+                                      This researcher does not have any common
+                                      topics yet.
+                                  </p>
+                              )}
                           </div>
                       </div>
                   ),
@@ -220,7 +259,9 @@ function App() {
                     size={"lg"}
                     dialogClassName={"modal-style"}
                 >
-                    <Modal.Header closeButton></Modal.Header>
+                    <Modal.Header closeButton className="modal-header">
+                        <h2>Study Details</h2>
+                    </Modal.Header>
                     <Modal.Body>
                         {!isCompact && (
                             <Tabs variant="enclosed" colorScheme="green">
@@ -249,14 +290,17 @@ function App() {
                                     >
                                         All Locations
                                     </Tab>
-                                    <Tab
-                                        _selected={{
-                                            color: "white",
-                                            bg: "#387DFF",
-                                        }}
-                                    >
-                                        About the Researcher
-                                    </Tab>
+                                    {researcherList.studies !== [] &&
+                                        researcherList.studies !== "None" && (
+                                            <Tab
+                                                _selected={{
+                                                    color: "white",
+                                                    bg: "#387DFF",
+                                                }}
+                                            >
+                                                About the Researcher
+                                            </Tab>
+                                        )}
                                     <Tab
                                         _selected={{
                                             color: "white",

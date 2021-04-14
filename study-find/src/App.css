@@ -72,6 +72,13 @@
     color: #1e2022;
 }
 
+.modal-header h2 {
+    font-size: 28px;
+    color: #1e2022;
+    padding-left: 2%;
+    padding-top: 2%;
+}
+
 .tab-cont h4 {
     font-size: 18px;
     color: #1e2022;
