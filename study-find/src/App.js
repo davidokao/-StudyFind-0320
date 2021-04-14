@@ -1,7 +1,8 @@
 import logo from "./logo.svg";
 import "./App.css";
 import axios from "axios";
-import { Accordion, Button, Card, Tab, Tabs } from "react-bootstrap";
+// import { Accordion, Card, Tab, Tabs, Button } from "react-bootstrap";
+import { Accordion, Card, Button } from "react-bootstrap";
 import Modal from "react-bootstrap/Modal";
 import { useEffect, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,41 +12,64 @@ import {
     faBuilding,
     faExternalLinkAlt,
 } from "@fortawesome/free-solid-svg-icons";
+import Placeholder from "./assets/Placeholder.png";
+import {
+    ChakraProvider,
+    ThemeProvider,
+    theme,
+    UnorderedList,
+    ListItem,
+    Tabs,
+    TabList,
+    TabPanel,
+    Tab,
+    TabPanels,
+} from "@chakra-ui/react";
 
 function App() {
     let [isOpen, setIsOpen] = useState(false);
     let [searchResearcherName, setSearchResearcherName] = useState(String);
     let [searchResearcherEmail, setSearchResearcherEmail] = useState(String);
-    let [searchResearcherOrganization, setSearchResearcherOrganization] = useState(String);
+    let [
+        searchResearcherOrganization,
+        setSearchResearcherOrganization,
+    ] = useState(String);
     let [researcherList, setResearcherList] = useState({
         name: "",
         organization: "",
         topics: [],
         studies: [],
         email: "",
-        pmid: ""
+        pmid: "",
     });
     let [isCompact, setIsCompact] = useState(false);
+    let [hasEmail, setHasEmail] = useState(false);
+    let [hasOrganization, setHasOrganization] = useState(false);
 
-    // modal events
+    // open the modal
     const openModal = () => {
         setIsOpen(true);
     };
+
+    //close the modal
     const closeModal = () => {
         setIsOpen(false);
+        setResearcherList(() => ({
+            name: "",
+            organization: "",
+            topics: [],
+            studies: [],
+        }));
     };
 
-    // // open link in new tab
-    // const learnMore = (url) => {
-    //     window.open(url, "_blank");
-    // };
-
-    // web scraping methods
+    // handling the sumbit button that takes in a researcher name
     const handleSubmit = (event) => {
         event.preventDefault();
         fetchData();
         openModal();
     };
+
+    // fetch the data based on the input researcher name
     const fetchData = () => {
         var myParams = {
             name: searchResearcherName,
@@ -56,8 +80,8 @@ function App() {
         axios
             .post("http://localhost:8080/add", myParams)
             .then(function (response) {
-                console.log("here")
-                console.log(response)
+                console.log("here");
+                console.log(response);
                 console.log(response.data);
                 if (response.data.studies != "None") {
                     setResearcherList((prevState) => ({
@@ -66,8 +90,14 @@ function App() {
                         topics: response.data.topics,
                         studies: response.data.studies,
                         email: response.data.email,
-                        pmid: response.data.pmid
+                        pmid: response.data.pmid,
                     }));
+                }
+                if (response.data.organization !== "None") {
+                    setHasOrganization(true);
+                }
+                if (response.data.email !== "None") {
+                    setHasEmail(false);
                 }
             })
             .catch(function (error) {
@@ -75,7 +105,7 @@ function App() {
             });
     };
 
-    //window size handling
+    // identify if window is compact
     const handleWindowSizeChange = () => {
         if (window.innerWidth < 992) {
             setIsCompact(true);
@@ -83,15 +113,24 @@ function App() {
             setIsCompact(false);
         }
     };
+
+    // check for window size change
     useEffect(() => {
         window.addEventListener("resize", handleWindowSizeChange);
         return () => {
             window.removeEventListener("resize", handleWindowSizeChange);
         };
     });
+
+    // update if the window is compact
     useEffect(() => {
         handleWindowSizeChange();
     }, []);
+
+    //submits a search for a topic, to be implemented by StudyFind
+    const submitSearch = (topic) => {
+        return true;
+    };
 
     // modal content
     let modalContent = [
@@ -118,55 +157,97 @@ function App() {
             content: (
                 <div class="tab-cont">
                     <h3>All Locations</h3>
-                    <ul>
-                        <li></li>
-                    </ul>
+                    <UnorderedList>
+                        <ListItem></ListItem>
+                    </UnorderedList>
                 </div>
             ),
             tabEventKey: "locations",
         },
-        (researcherList.name === ""
+        researcherList.name === "" || researcherList.studies === "None"
             ? []
             : {
                   title: "About the Researcher",
                   content: (
                       <div class="tab-cont">
-                          <div class="researcher-contact">
-                              <h3>About the Researcher</h3>
+                          {!isCompact && (
+                              <img src={Placeholder} className="float-right" />
+                          )}
+                          <h3>About the Researcher</h3>
+                          <div class="researcher-contact tab-section">
                               <p>
                                   <FontAwesomeIcon icon={faUser} />{" "}
                                   {researcherList.name}
-                                  <br />
-                                  <FontAwesomeIcon icon={faBuilding} />{" "}
-                                  {researcherList.organization}
+                                  {hasEmail && (
+                                      <span>
+                                          <br />
+                                          <FontAwesomeIcon
+                                              icon={faEnvelope}
+                                          />{" "}
+                                          {researcherList.email}
+                                      </span>
+                                  )}
+                                  {hasOrganization && (
+                                      <span>
+                                          <br />
+                                          <FontAwesomeIcon
+                                              icon={faBuilding}
+                                          />{" "}
+                                          {researcherList.organization}
+                                      </span>
+                                  )}
                               </p>
                           </div>
-                          <div class="content">
-                              <p>Recent Studies From This Researcher:</p>
+                          {isCompact && (
+                              <img src={Placeholder} className="center-img" />
+                          )}
+                          <div class="content tab-section">
+                              <h4>Recent Studies From This Researcher:</h4>
                               {researcherList.studies.map((study, ind) => (
-                                  <ul>
-                                      <li>
-                                          Title: <u>{study.title}</u>{" "}
-                                      </li>
-                                      <li>
-                                          Publication Date:{" "}
+                                  <div className="bottom-padding">
+                                      <u>
+                                          <a
+                                              href={study["pdf link"]}
+                                              target="_blank"
+                                          >
+                                              {study.title}
+                                          </a>
+                                      </u>
+                                      <p className="insert-indent">
+                                          <strong>Publication Date:</strong>{" "}
                                           {study["publication date"]}
-                                      </li>
-                                      <li>PDF link: {study["pdf link"]}</li>
-                                      <li>Description: {study.description}</li>
-                                  </ul>
+                                      </p>
+                                      <p className="insert-indent">
+                                          <strong>Description:</strong>{" "}
+                                          {study.description}
+                                      </p>
+                                  </div>
                               ))}
                           </div>
-                          <div class="content">
-                              <p>Common Topics Studied by This Researcher:</p>
-                              {researcherList.topics.map((topic, ind) => (
-                                  <div>{topic}</div>
-                              ))}
+                          <div class="content tab-section">
+                              <h4>Common Topics Studied by This Researcher:</h4>
+                              {researcherList.topics !== "None" &&
+                                  researcherList.topics.map((topic, ind) => (
+                                      <Button
+                                          type="button"
+                                          className="topic"
+                                          variant="secondary"
+                                          onClick={submitSearch(topic)}
+                                      >
+                                          {topic}
+                                      </Button>
+                                  ))}
+                              {researcherList.topics === "None" && (
+                                  <p>
+                                      This researcher does not have any common
+                                      topics yet.
+                                  </p>
+                              )}
                           </div>
                       </div>
                   ),
                   tabEventKey: "researcher",
-              }),
+              },
         {
             title: "Learn More",
             content: (
@@ -182,84 +263,141 @@ function App() {
     ];
 
     return (
-        <div className="App">
-            <Modal
-                show={isOpen}
-                onHide={closeModal}
-                animation={true}
-                backdropClassName={"modal-backdrop"}
-                centered={true}
-                size={"lg"}
-                dialogClassName={"modal-style"}
-            >
-                <Modal.Header closeButton></Modal.Header>
-                <Modal.Body>
-                    {!isCompact && (
-                        <Tabs defaultActiveKey="description" className="tabs">
-                            {modalContent.map((section, i) => (
-                                <Tab
-                                    eventKey={section.tabEventKey}
-                                    title={section.title}
-                                    tabClassName="tab"
-                                >
-                                    {section.content}
-                                </Tab>
-                            ))}
-                        </Tabs>
-                    )}
-                    {isCompact && (
-                        <Accordion>
-                            {modalContent.map((section, i) => (
-                                <Card>
-                                    <Card.Header>
-                                        <Accordion.Toggle
-                                            as={Button}
-                                            variant="link"
-                                            eventKey={i + 1}
-                                        >
-                                            {section.title}
-                                        </Accordion.Toggle>
-                                    </Card.Header>
-                                    <Accordion.Collapse eventKey={i + 1}>
-                                        <Card.Body>{section.content}</Card.Body>
-                                    </Accordion.Collapse>
-                                </Card>
-                            ))}
-                        </Accordion>
-                    )}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="primary" onClick={closeModal}>
-                        Close
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-            <form onSubmit={handleSubmit}>
-                <label>Enter Name:</label>
-                <input
-                    type="text"
-                    value={searchResearcherName}
-                    onChange={(e) => setSearchResearcherName(e.target.value)}
-                />
-                <label>Enter Email:</label>
-                <input
-                    type="text"
-                    value={searchResearcherEmail}
-                    onChange={(e) => setSearchResearcherEmail(e.target.value)}
-                />
-                <label>Enter Organization:</label>
-                <input
-                    type="text"
-                    value={searchResearcherOrganization}
-                    onChange={(e) => setSearchResearcherOrganization(e.target.value)}
-                />
-                <input
-                    type="submit"
-                    class="button"
-                    styyle={{ height: "100%" }}
-                />
-            </form>
-        </div>
+        <ChakraProvider>
+            <div className="App">
+                <Modal
+                    show={isOpen}
+                    onHide={closeModal}
+                    animation={true}
+                    backdropClassName={"modal-backdrop"}
+                    centered={true}
+                    size={"lg"}
+                    dialogClassName={"modal-style"}
+                >
+                    <Modal.Header closeButton className="modal-header">
+                        <h2>Study Details</h2>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {!isCompact && (
+                            <Tabs variant="enclosed" colorScheme="green">
+                                <TabList>
+                                    <Tab
+                                        _selected={{
+                                            color: "white",
+                                            bg: "#387DFF",
+                                        }}
+                                    >
+                                        Full Description
+                                    </Tab>
+                                    <Tab
+                                        _selected={{
+                                            color: "white",
+                                            bg: "#387DFF",
+                                        }}
+                                    >
+                                        Additional Criteria
+                                    </Tab>
+                                    <Tab
+                                        _selected={{
+                                            color: "white",
+                                            bg: "#387DFF",
+                                        }}
+                                    >
+                                        All Locations
+                                    </Tab>
+                                    {researcherList.studies !== [] &&
+                                        researcherList.studies !== "None" && (
+                                            <Tab
+                                                _selected={{
+                                                    color: "white",
+                                                    bg: "#387DFF",
+                                                }}
+                                            >
+                                                About the Researcher
+                                            </Tab>
+                                        )}
+                                    <Tab
+                                        _selected={{
+                                            color: "white",
+                                            bg: "#387DFF",
+                                        }}
+                                    >
+                                        Learn More
+                                    </Tab>
+                                </TabList>
+                                <TabPanels>
+                                    {modalContent.map((section, i) => (
+                                        <TabPanel>{section.content}</TabPanel>
+                                    ))}
+                                </TabPanels>
+                            </Tabs>
+                        )}
+                        {isCompact && (
+                            <Accordion>
+                                {modalContent.map((section, i) => (
+                                    <Card>
+                                        <Card.Header>
+                                            <Accordion.Toggle
+                                                as={Button}
+                                                variant="link"
+                                                eventKey={i + 1}
+                                            >
+                                                {section.title}
+                                            </Accordion.Toggle>
+                                        </Card.Header>
+                                        <Accordion.Collapse eventKey={i + 1}>
+                                            <Card.Body>
+                                                {section.content}
+                                            </Card.Body>
+                                        </Accordion.Collapse>
+                                    </Card>
+                                ))}
+                            </Accordion>
+                        )}
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button
+                            variant="primary"
+                            onClick={closeModal}
+                            className="blueBackground"
+                        >
+                            Close
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+                <form onSubmit={handleSubmit}>
+                    <label>Enter Name:</label>
+                    <input
+                        type="text"
+                        value={searchResearcherName}
+                        onChange={(e) =>
+                            setSearchResearcherName(e.target.value)
+                        }
+                    />
+                    <label>Enter Email:</label>
+                    <input
+                        type="text"
+                        value={searchResearcherEmail}
+                        onChange={(e) =>
+                            setSearchResearcherEmail(e.target.value)
+                        }
+                    />
+                    <label>Enter Organization:</label>
+                    <input
+                        type="text"
+                        value={searchResearcherOrganization}
+                        onChange={(e) =>
+                            setSearchResearcherOrganization(e.target.value)
+                        }
+                    />
+                    <input
+                        type="submit"
+                        class="button"
+                        styyle={{ height: "100%" }}
+                    />
+                </form>
+            </div>
+        </ChakraProvider>
     );
 }
 
