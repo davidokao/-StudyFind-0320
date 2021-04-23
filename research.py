@@ -428,4 +428,4 @@ def NLP(description):
     return summary
 
 # Uncomment and run for testing purposes
-print(generate_researcher("Kamini Singh"))
+# print(generate_researcher("Kamini Singh"))
