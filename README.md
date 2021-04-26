@@ -1,7 +1,7 @@
 # StudyFind-0320
 Junior Design project
 
-*Release Notes*
+*Release Notes Version 1.0.0*
 * New software features for this release:
   * Created PubMed and Google Scholar web scrappers
   * Researcher profile generation from scrapped results
